@@ -1,0 +1,164 @@
+%>% -> piping operator
+Everything that comes before the pipe is evaluated and passed as first argument into the function that comes after the pipe
+
+```{r}
+install.packages('readr')
+install.packages('dplyr')
+install.packages('rlang')
+install.packages('pillar')
+
+library(readr)
+library(dplyr)
+system.file(package = 'dplyr')
+
+bill <- read_csv("charts.csv")
+
+bill %>% tail(10)
+10 %>% sample_n(bill,.)
+
+```
+
+dplyr can be grouped into categories based on 
+    1. column operation - select( ), mutate( )
+    2. row operation - filter( ), distinct( ), arrange( )
+    3. group operation - group_by( ), summarise( ), count( )
+     
+select( ) -> select columns by name or helper functions
+
+
+# select( )
+
+```{r}
+
+bill = bill [-10,]
+bill
+
+bill %>% 
+  select(.,date,rank,song,artist, 'weeks-on-board' )
+
+bill %>% 
+  select(.,date:artist, weeks_popular = 'weeks-on-board')
+bill
+
+bill %>% 
+  select(., -`last-week`, -`peak-rank`)
+
+```
+
+helper functions
+```{r}
+select(bill, contains("art", ignore.case = TRUE))
+# select columns contains the .
+
+select(bill, ends_with("ard"))
+# select columns ends with .
+
+select(bill, everything())
+# select every columns
+
+select(bill, matches("."))
+# select columns that matches regex
+
+select(bill, num_range("x", 1:5))
+# select columns named x1,x2,x3,x4,x5
+
+select(bill, one_of(c('artist','not')))
+# select columns whose names are in group of names
+
+select(bill, starts_with("art"))
+# select columns that start with this character
+
+```
+
+
+mutate() -> compute ot append one or more new columns
+
+```{r}
+bill
+
+
+bill %>% 
+  mutate(iscollab = grepl("Featuring", artist)) %>% 
+  select(artist,iscollab, week_popular=`weeks-on-board`)
+```
+
+filter() ->Extract rows that meet logical criteria
+
+```{r}
+bill %>% 
+  select(song,rank,artist, weeks_popular = `weeks-on-board`) %>% 
+  filter(.,weeks_popular>20, artist == 'Adele' | artist == 'Coldplay')
+
+bill %>% 
+  select(song,rank,artist,week_popular = `weeks-on-board`) %>% 
+  filter(., week_popular>20, grepl("^lil",ignore.case = T, artist))
+
+
+```
+
+distinct() -> remove duplicate rows
+
+```{r}
+bill %>% 
+  select(.,artist,song,rank) %>% 
+  filter(artist == 'Coldplay') %>% 
+  distinct(song)
+  
+  #this returns as dataframe
+
+bill %>% 
+  select(.,artist,song,rank) %>% 
+  filter(artist == 'Coldplay') %>% 
+  distinct(song) %>% 
+  .$song # fetch the df object and take the colummn song
+
+
+```
+
+group_by() -> group data into rows with the same value
+summarise() -> summarise data into single row of values
+
+```{r}
+
+bill %>% 
+  select(., artist, song, rank, weeks_popular='weeks-on-board') %>% 
+  filter(artist == 'Coldplay')  %>% 
+  group_by(song) %>% 
+  summarise(total_weeks_popular = max(weeks_popular)) 
+  
+```
+
+arrange() -> order rows by values of a column [low to high]
+
+
+```{r}
+bill %>% 
+  select(artist, rank, song, pop = `weeks-on-board`) %>% 
+  filter(artist == 'Coldplay') %>% 
+  group_by(song) %>% 
+  summarise(total_weeks_pop = max(pop)) %>% 
+  arrange(-total_weeks_pop,song) %>% 
+  head(10)
+```
+
+count() -> count number of rows with each unique value of the variable
+
+```{r}
+bill %>% 
+  select(artist, rank, song, week_pop = `weeks-on-board`) %>% 
+  count(artist) %>% 
+  rename(times = n) %>% 
+  arrange(-times)
+
+```
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,107 @@
+SAI
+
+Data cleaning (lubridate & stringr)
+Reshaping Data (tidyr)
+Joining / Merging Datasets
+
+
+```{r}
+install.packages('lubridate')
+install.packages('stringr')
+
+library(readxl)
+library(dplyr)
+library(lubridate)
+library(stringr)
+
+
+
+bill = read.csv("charts.csv")
+bill 
+
+musicdf = bill %>% 
+  select(date:artist, weeks_popular = 'weeks.on.board')
+musicdf
+```
+
+lubridate package -> deal with the date and time values -> clean and parse date and time
+stringr package ->string extraction and matching
+
+```{r}
+musicdf %>% 
+  mutate(date = ymd(date))
+
+```
+
+stringr package str_detect, str_match and other useful string functions
+
+str_detect(string, pattern) -> Detect the presence of a pattern match in a string
+str_match(string, pattern) -> Return the first pattern  match found in each string, as a matrix with a column for each() group in pattern.
+str_match_all(sentence, pattern)
+
+
+
+```{r}
+
+musicdf <- musicdf %>% 
+  mutate(date=ydm(date),
+  primary_artist = ifelse(str_detect(artist, 'Featuring'),    #ifelse(cond, T,F)
+                          str_match(artist, '(.*)\\sFeaturing')[,2],
+                          artist),
+  featured_artist = str_match(artist, 'Featuring\\s(.*)')[,2]) %>% 
+  select(date,artist, primary_artist,featured_artist)
+
+musicdf
+
+
+
+# [,2] using because 
+# full match is going to be the 1st thing that's returned
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

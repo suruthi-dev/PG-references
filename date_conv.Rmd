@@ -1,0 +1,78 @@
+
+```{r}
+install.packages("nycflights13")  # Install if not already installed
+library(nycflights13)
+library(dplyr)  # For data manipulation
+library(lubridate)
+
+
+# View first few rows
+head(flights)
+colnames(flights)
+
+# number of flights  from NY ON 31ST JAN 2013
+# OF THAT number of flights from JFK
+
+df = flights
+df
+View(df)
+?flights
+
+# TO check for the unique values in a column 
+unique(df$origin) # "EWR" "LGA" "JFK"
+
+# (or)
+
+df %>% distinct(origin)
+
+
+# number of flights  from NY 
+
+df %>% 
+  filter(origin %in% c("JFK","LGA") & as.Date(time_hour) == '2013-01-31' ) %>% 
+  select(flight,origin,time_hour)
+
+df %>% 
+  mutate(date = as.Date(time_hour)) %>%  # Extract only YYYY-MM-DD
+  filter(date == "2013-01-31") %>% 
+  select(flight,origin,time_hour, date)
+
+df$date = as.Date(as.character(df$time_hour))
+View(df)
+
+tail(df)
+
+
+df %>%
+  mutate(date = floor_date(time_hour, "day")) %>% 
+select(flight,origin,time_hour, date)
+
+a
+
+
+library(dplyr)
+library(lubridate)
+
+df %>%
+  mutate(
+    time_hour_utc = with_tz(time_hour, "UTC"), # Convert to UTC
+    date = as_date(time_hour_utc) # Extract date from UTC time
+  ) %>%
+  filter(date == "2013-01-31") %>%
+  select(year,month,day, time_hour,time_hour_utc, date)
+
+
+library(stringr)
+df %>% 
+  mutate(date = str_extract(as.character(time_hour), "\\d{4}-\\d{2}-\\d{2}")) %>%
+  filter(date == "2013-01-31") %>%
+  select(time_hour, date,year,month,day)
+
+
+a
+as.character(a)
+
+
+
+```
+
